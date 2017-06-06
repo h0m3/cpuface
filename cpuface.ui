@@ -7,26 +7,27 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>320</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>500</width>
-    <height>320</height>
+    <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>500</width>
-    <height>320</height>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>CPUFace</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="cpu"/>
+   <iconset theme="cpu">
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -54,7 +55,7 @@
        </property>
        <item>
         <property name="text">
-         <string>Default</string>
+         <string>No Selected Profile</string>
         </property>
        </item>
       </widget>
@@ -150,7 +151,7 @@
           <item row="0" column="1">
            <widget class="QCheckBox" name="check_enabled">
             <property name="text">
-             <string>Enabled</string>
+             <string>OnLine</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -168,16 +169,39 @@
            <item>
             <layout class="QFormLayout" name="formLayout_3">
              <item row="0" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Driver:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="lab_driver">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>None</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
               <widget class="QLabel" name="label_13">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Vendor:</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
+             <item row="1" column="1">
               <widget class="QLabel" name="lab_vendor">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -190,17 +214,20 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QLabel" name="label_7">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>CPU ID:</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <widget class="QLabel" name="cpu_id">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -213,40 +240,20 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QLabel" name="label_8">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Core ID:</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
+             <item row="3" column="1">
               <widget class="QLabel" name="core_id">
                <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_10">
-               <property name="text">
-                <string>BogoMips:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLabel" name="label_9">
-               <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -261,15 +268,18 @@
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="label_5">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Speed (MHz):</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="label_12">
+              <widget class="QLabel" name="lab_speed">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -284,15 +294,18 @@
              </item>
              <item row="5" column="0">
               <widget class="QLabel" name="label_6">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
-                <string>Cache (KB):</string>
+                <string>Cache:</string>
                </property>
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLabel" name="label_11">
+              <widget class="QLabel" name="lab_cache">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -323,7 +336,8 @@
         <string>Close</string>
        </property>
        <property name="icon">
-        <iconset theme="window-close"/>
+        <iconset theme="window-close">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -341,12 +355,24 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="btn_remove">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+       <property name="icon">
+        <iconset theme="edit-delete">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btn_save">
        <property name="text">
         <string>Save</string>
        </property>
        <property name="icon">
-        <iconset theme="document-save"/>
+        <iconset theme="document-save">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -356,7 +382,8 @@
         <string>New</string>
        </property>
        <property name="icon">
-        <iconset theme="document-new"/>
+        <iconset theme="document-new">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
