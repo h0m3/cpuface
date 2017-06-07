@@ -8,7 +8,7 @@
 from os import listdir
 
 
-def get_driver(cpu=0):
+def driver(cpu=0):
     """
         Get CPU current frequency driver
     """
@@ -23,7 +23,7 @@ def get_driver(cpu=0):
         return "unknown"
 
 
-def get_cpu_info():
+def cpu_info():
     """
         Get and organize CPU information
     """
@@ -41,7 +41,7 @@ def get_cpu_info():
                 cpu["core"] = "unknown"
                 cpu["vendor"] = "unknown"
                 cpu["cache"] = 0
-                cpu["driver"] = get_driver(len(cpuinfo))
+                cpu["driver"] = driver(len(cpuinfo))
                 cpuinfo.append(cpu)
     except (OSError, IOError) as err:
         print("[CPUFace] Unable to get CPU information")
@@ -78,7 +78,7 @@ def get_cpu_info():
     return cpuinfo
 
 
-def is_online(cpu=0):
+def online(cpu=0):
     """
         Return if the CPU is enabled
     """
@@ -94,11 +94,11 @@ def is_online(cpu=0):
         return True
 
 
-def get_governor(cpu=0):
+def governor(cpu=0):
     """
         Return the current governor for a given CPU
     """
-    if is_online(cpu):
+    if online(cpu):
         try:
             buf = open("/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor" % cpu, "r")
             r = buf.readline()[:-1]
@@ -111,11 +111,11 @@ def get_governor(cpu=0):
         return "disabled"
 
 
-def get_speed(cpu=0):
+def speed(cpu=0):
     """
         Get given CPU current speed in MHz
     """
-    if is_online(cpu):
+    if online(cpu):
         try:
             buf = open("/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq" % cpu, "r")
             r = int(int(buf.readline()) / 1000)
@@ -128,11 +128,11 @@ def get_speed(cpu=0):
         return 0
 
 
-def get_min_speed(cpu=0):
+def min_speed(cpu=0):
     """
         Get given CPU minimum speed in MHz
     """
-    if is_online(cpu):
+    if online(cpu):
         try:
             buf = open("/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq" % cpu, "r")
             r = int(int(buf.readline()) / 1000)
@@ -145,11 +145,11 @@ def get_min_speed(cpu=0):
         return 0
 
 
-def get_max_speed(cpu=0):
+def max_speed(cpu=0):
     """
         Get given CPU maximum speed in MHz
     """
-    if is_online(cpu):
+    if online(cpu):
         try:
             buf = open("/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq" % cpu, "r")
             r = int(int(buf.readline()) / 1000)
@@ -162,11 +162,11 @@ def get_max_speed(cpu=0):
         return 0
 
 
-def get_governors(cpu=0):
+def governors(cpu=0):
     """
         Get a list of all available governors
     """
-    if is_online(cpu):
+    if online(cpu):
         try:
             buf = open("/sys/devices/system/cpu/cpu%d/cpufreq/scaling_available_governors" % cpu, "r")
             r = buf.readline()[:-1].split(" ")
@@ -174,6 +174,6 @@ def get_governors(cpu=0):
             return r
         except (OSError, IOError, ValueError) as err:
             print("[CPUFace] Error while getting CPU available governors: %s" % err)
-            return [get_governor()]
+            return [governor(cpu)]
     else:
-        return [get_governor(cpu)]
+        return [governor(cpu)]

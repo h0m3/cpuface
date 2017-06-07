@@ -4,58 +4,36 @@
 """
 
 from subprocess import check_output, STDOUT, CalledProcessError
-from cpu_info import is_enabled, get_governor
+import cpu_get
 
 
-def set_online(cpu=0, enable=True):
-    """
-        Enable or disable selected CPU
-    """
-    if is_enabled() == enable:
-        return (0, None)
-
+def run_command(command):
     try:
-        if enable:
-            return (0, check_output(["cpuface_helper", "%d" % cpu, "enable"], stderr=STDOUT).decode())
-        else:
-            return (0, check_output(["cpuface_helper", "%d" % cpu, "disable"], stderr=STDOUT).decode())
+        return (0, check_output(command.split(" "), stderr=STDOUT).decode())
     except CalledProcessError as err:
-        print("[CPUFace] Unable to change CPU state")
+        print("[CPUFace] Unable to change CPU information")
         return (err.returncode, err.output.decode())
     except OSError as err:
-        print("[CPUFace] Unable to change CPU state")
+        print("[CPUFace] Unable to change CPU information")
         return (err.errno, err.strerror)
 
 
-def set_governor(cpu=0, governor="powersave"):
-    """
-        Set governor for a specific CPU
-    """
-    if get_governor() == governor:
+def governor(cpu=0, governor="powersave"):
+    if not(cpu_get.online(cpu)) or (cpu_get.governor(cpu) == governor):
         return (0, None)
-
-    try:
-        return (0, check_output(["cpuface_helper", "%d" % cpu, "governor", governor], stderr=STDOUT).decode())
-    except CalledProcessError as err:
-        print("[CPUFace] Unable to change CPU state")
-        return (err.returncode, err.output.decode())
-    except OSError as err:
-        print("[CPUFace] Unable to change CPU state")
-        return (err.errno, err.strerror)
+    return run_command("cpuface_helper %d governor %s" % (cpu, governor))
 
 
-def set_speed(cpu=0, speed=800):
-    """
-        Set speed for a given CPU
-    """
-    if get_speed() == speed:
+def online(cpu=0, online=True):
+    if cpu_get.online(cpu) == online:
         return (0, None)
+    if online:
+        return run_command("cpuface_helper %d online" % cpu)
+    else:
+        return run_command("cpuface_helper %d offline" % cpu)
 
-    try:
-        return (0, check_output(["cpuface_helper", "%d" % cpu, "speed" "%d" % speed * 1000], stderr=STDOUT).decode())
-    except CalledProcessError as err:
-        print("[CPUFace] Unable to change CPU state")
-        return (err.returncode, err.output.decode())
-    except OSError as err:
-        print("[CPUFace] Unable to change CPU state")
-        return (err.errno, err.strerror)
+
+def speed(cpu=0, speed=800):
+    if not(cpu_get.online(cpu)) or (cpu_get.speed(cpu) == speed):
+        return (0, None)
+    return run_command("cpuface_helper %d speed %d" % (cpu, speed * 1000))

@@ -48,10 +48,10 @@ int main(int argc, char *argv[]) {
     }
 
     int cpu = atoi(argv[1]);
-    if (!strcmp(argv[2], "enable")) {
+    if (!strcmp(argv[2], "online")) {
         char path[] = "/sys/devices/system/cpu/cpu%d/online";
         return edit_file(cpu, path, (char *)"1");
-    } else if (!strcmp(argv[2], "disable")) {
+    } else if (!strcmp(argv[2], "offline")) {
         char path[] = "/sys/devices/system/cpu/cpu%d/online";
         return edit_file(cpu, path, (char *)"0");
     } else if (!strcmp(argv[2], "governor")) {
