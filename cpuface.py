@@ -16,18 +16,9 @@ class Cpuface(QDialog):
     def __init__(self):
         super(Cpuface, self).__init__()
         loadUi('cpuface.ui', self)
-        self.cpuinfo = cpu_get.cpu_info()
+
         self.profiles = profiles.load_profiles()
-
-        cont = 0
-        for cpu in self.cpuinfo:
-            self.sel_cpu.addItem("CPU %d: %s" % (cont, cpu["name"]))
-            cont += 1
-
-        self.update_profiles()
-        self.update_cpu()
-        self.sel_cpu.currentIndexChanged.connect(self.update_cpu)
-        self.btn_new.clicked.connect(self.new_profile)
+        self.update_ui()
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_speed)
@@ -35,126 +26,97 @@ class Cpuface(QDialog):
 
         self.show()
 
-    def new_profile(self):
-        self.btn_remove.setEnabled(False)
-        self.btn_save.setEnabled(False)
-        self.btn_new.setEnabled(False)
-        self.sel_profile.setEnabled(False)
-
-        input_name = QInputDialog(self)
-        input_name.setLabelText("Profile Name")
-        input_name.setOkButtonText("Create")
-        input_name.exec_()
-        name = input_name.textValue()
-
-        if name != '':
-            self.profiles[name] = list()
-            for cpu in range(0, len(self.cpuinfo)):
-                self.profiles[name].append(dict())
-                self.profiles[name][cpu]["online"] = cpu_get.online(cpu)
-                if cpu_get.online(cpu):
-                    self.profiles[name][cpu]["governor"] = cpu_get.governor(cpu)
-                else:
-                    self.profiles[name][cpu]["governor"] = None
-                if cpu_get.governor(cpu) == "userspace":
-                    self.profiles[name][cpu]["speed"] = cpu_get.speed(cpu)
-                else:
-                    self.profiles[name][cpu]["speed"] = None
-            self.update_profiles()
-            self.sel_profile.setCurrentIndex(self.sel_profile.findText(name))
-
-    def update_profile(self):
-        self.btn_remove.setEnabled(False)
-        self.btn_save.setEnabled(False)
-        self.btn_new.setEnabled(False)
-        self.sel_profile.setEnabled(False)
-
-        profile = self.sel_profile.currentText()
-        if profile != "No selected profile":
-            for cpu in range(0, len(self.cpuinfo)):
-                cpu_set.online(cpu, self.profiles[profile][cpu]["online"])
-                if self.profiles[profile][cpu]["governor"] is not None:
-                    cpu_set.governor(cpu, self.profiles[profile][cpu]["governor"])
-                if self.profiles[profile][cpu]["speed"] is not None:
-                    cpu_set.speed(cpu, self.profiles[profile][cpu]["speed"])
-            self.btn_remove.setEnabled(True)
-            self.btn_save.setEnabled(True)
-
-        self.sel_profile.setEnabled(True)
-        self.btn_new.setEnabled(True)
-        self.update_cpu()
-
-    def update_profiles(self, selected_profile=0):
-        self.btn_save.setEnabled(False)
-        self.btn_remove.setEnabled(False)
-        self.btn_new.setEnabled(False)
-        self.sel_profile.setEnabled(False)
-        try:
-            self.sel_profile.currentIndexChanged.disconnect()
-        except TypeError:
-            pass
-
-        self.sel_profile.clear()
-        self.sel_profile.addItem("No selected profile")
-        for item in self.profiles:
-            self.sel_profile.addItem(item)
-
-        self.sel_profile.setCurrentIndex(selected_profile)
-        self.update_profile()
-        self.sel_profile.currentIndexChanged.connect(self.update_profile)
+    def closeEvent(self, event):
+        profiles.save_profiles(self.profiles)
 
     def update_speed(self):
         self.lab_speed.setText(str(cpu_get.speed(self.cpu)))
 
-    def update_cpu(self):
-
-        # Disconnect all signals to update
+    def update_ui(self):
+        # Disable all unwanted calls
         try:
-            self.sel_governor.currentIndexChanged.disconnect()
+            self.sel_profile.currentIndexChanged.disconnect()
+            self.sel_cpu.currentIndexChanged.disconnect()
             self.check_online.stateChanged.disconnect()
+            self.sel_governor.currentIndexChanged.disconnect()
             self.val_speed.valueChanged.disconnect()
+            self.btn_new.clicked.disconnect()
+            self.btn_save.clicked.disconnect()
+            self.btn_remove.clicked.disconnect()
         except TypeError:
             pass
 
-        self.cpu = self.sel_cpu.currentIndex()
-
+        # Disable all options
+        self.sel_profile.setEnabled(False)
+        self.sel_cpu.setEnabled(False)
         self.check_online.setEnabled(False)
         self.sel_governor.setEnabled(False)
         self.val_speed.setEnabled(False)
+        self.btn_new.setEnabled(False)
+        self.btn_save.setEnabled(False)
+        self.btn_remove.setEnabled(False)
 
-        # Define CPU OnLine Status
+        # Update profile selection
+        prof_index = self.sel_profile.currentIndex()
+        if prof_index == -1:
+            prof_index = 0
+        self.sel_profile.clear()
+        self.sel_profile.addItem("No selected profile")
+        for profile in self.profiles:
+            self.sel_profile.addItem(profile)
+        self.sel_profile.setCurrentIndex(prof_index)
+        self.sel_profile.currentIndexChanged.connect(self.set_profile)
+        self.sel_profile.setEnabled(True)
+
+        # Update CPU selection
+        self.cpuinfo = cpu_get.cpu_info()
+        self.cpu = self.sel_cpu.currentIndex()
+        if self.cpu == -1:
+            self.cpu = 0
+        self.sel_cpu.clear()
+        for i, cpu in enumerate(self.cpuinfo):
+            self.sel_cpu.addItem("CPU %d: %s" % (i, cpu["name"]))
+        self.sel_cpu.setCurrentIndex(self.cpu)
+        self.sel_cpu.currentIndexChanged.connect(self.update_ui)
+        self.sel_cpu.setEnabled(True)
+
+        # Update current CPU status
         self.check_online.setChecked(cpu_get.online(self.cpu))
+        self.check_online.stateChanged.connect(self.set_online)
         self.check_online.setEnabled(self.cpu is not 0)
 
-        # Define CPU Governor
+        # Update current CPU governor
         self.sel_governor.clear()
-        for gov in cpu_get.governors(self.cpu):
-            self.sel_governor.addItem(gov)
-        index = self.sel_governor.findText(cpu_get.governor(self.cpu))
-        if index is not -1:
-            self.sel_governor.setCurrentIndex(index)
+        for governor in cpu_get.governors(self.cpu):
+            self.sel_governor.addItem(governor)
+        self.sel_governor.setCurrentIndex(self.sel_governor.findText(cpu_get.governor(self.cpu)))
+        self.sel_governor.currentIndexChanged.connect(self.set_governor)
         self.sel_governor.setEnabled(cpu_get.online(self.cpu))
 
-        # Define CPU speed
+        # Update current speed
         self.val_speed.setMinimum(cpu_get.min_speed(self.cpu))
         self.val_speed.setMaximum(cpu_get.max_speed(self.cpu))
         self.val_speed.setValue(cpu_get.speed(self.cpu))
+        self.val_speed.valueChanged.connect(self.set_speed)
         self.val_speed.setEnabled(cpu_get.online(self.cpu) and (self.sel_governor.currentText() == "userspace"))
 
-        # Define other CPU information
+        # Update additional information
         self.lab_driver.setText(self.cpuinfo[self.cpu]["driver"])
         self.lab_vendor.setText(self.cpuinfo[self.cpu]["vendor"])
         self.lab_cpu_id.setText(self.cpuinfo[self.cpu]["id"])
         self.lab_core_id.setText(self.cpuinfo[self.cpu]["core"])
-        self.lab_speed.setText(str(cpu_get.speed(self.cpu)))
         self.lab_cache.setText(str(self.cpuinfo[self.cpu]["cache"]))
 
-        # Connect all signals back again
-        self.sel_governor.currentIndexChanged.connect(self.set_governor)
-        self.check_online.stateChanged.connect(self.set_online)
-        self.val_speed.valueChanged.connect(self.set_speed)
+        # Update buttons action
+        self.btn_new.clicked.connect(self.new_profile)
+        self.btn_new.setEnabled(True)
+        if self.sel_profile.currentText() != "No selected profile":
+            self.btn_save.clicked.connect(self.save_profile)
+            self.btn_save.setEnabled(True)
+            self.btn_remove.clicked.connect(self.remove_profile)
+            self.btn_remove.setEnabled(True)
 
-    def set_unable(self, result):
+    def detect_error(self, result):
         if result[0] != 0:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -164,18 +126,59 @@ class Cpuface(QDialog):
             msg.setStandardButtons(QMessageBox.Close)
             msg.exec_()
 
-    def set_governor(self):
-        self.set_unable(cpu_set.governor(self.cpu, self.sel_governor.currentText()))
-        self.update_cpu()
-
     def set_online(self):
-        self.set_unable(cpu_set.online(self.cpu, self.check_online.isChecked()))
-        self.cpuinfo = cpu_get.cpu_info()
-        self.update_cpu()
+        self.detect_error(cpu_set.online(self.cpu, self.check_online.isChecked()))
+        self.update_ui()
+
+    def set_governor(self):
+        self.detect_error(cpu_set.governor(self.cpu, self.sel_governor.currentText()))
+        self.update_ui()
 
     def set_speed(self):
-        self.set_unable(cpu_set.speed(self.cpu, self.val_speed.value()))
+        self.detect_error(cpu_set.speed(self.cpu, self.val_speed.value()))
         self.update_cpu()
 
-    def closeEvent(self, event):
-        profiles.save_profiles(self.profiles)
+    def new_profile(self):
+        input_name = QInputDialog(self)
+        input_name.setLabelText("Profile Name")
+        input_name.setOkButtonText("Create")
+        input_name.exec_()
+        name = input_name.textValue()
+
+        if name != '':
+            self.save_profile(name)
+
+    def save_profile(self, name=None):
+        if type(name) is bool or name is None:
+            name = self.sel_profile.currentText()
+
+        self.profiles[name] = list()
+        for cpu in range(0, len(self.cpuinfo)):
+            self.profiles[name].append(dict())
+            self.profiles[name][cpu]["online"] = cpu_get.online(cpu)
+            if cpu_get.online(cpu):
+                self.profiles[name][cpu]["governor"] = cpu_get.governor(cpu)
+            else:
+                self.profiles[name][cpu]["governor"] = None
+            if cpu_get.governor(cpu) == "userspace":
+                self.profiles[name][cpu]["speed"] = cpu_get.speed(cpu)
+            else:
+                self.profiles[name][cpu]["speed"] = None
+        self.update_ui()
+        self.sel_profile.setCurrentIndex(self.sel_profile.findText(name))
+
+    def remove_profile(self):
+        del self.profiles[self.sel_profile.currentText()]
+        self.update_ui()
+        self.sel_profile.setCurrentIndex(0)
+
+    def set_profile(self):
+        if self.sel_profile.currentIndex() > 0:
+            profile = self.sel_profile.currentText()
+            for cpu in range(0, len(self.cpuinfo)):
+                cpu_set.online(cpu, self.profiles[profile][cpu]["online"])
+                if self.profiles[profile][cpu]["governor"] is not None:
+                    cpu_set.governor(cpu, self.profiles[profile][cpu]["governor"])
+                if self.profiles[profile][cpu]["speed"] is not None:
+                    cpu_set.speed(cpu, self.profiles[profile][cpu]["speed"])
+        self.update_ui()
