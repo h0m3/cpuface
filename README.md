@@ -2,7 +2,7 @@
 
 CPUFace is a simple monitor and tool for your CPU frequency and governor.
 
-
+![CPUFace Screenshot](https://image.ibb.co/ftJsXa/Screenshot_0607_1426.png)
 
 ### What it does?
 
