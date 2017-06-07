@@ -6,6 +6,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox, QInputDialog
 from PyQt5.QtCore import QTimer
 from PyQt5.uic import loadUi
+from os import path
 import cpu_get
 import cpu_set
 import profiles
@@ -15,7 +16,8 @@ class Cpuface(QDialog):
 
     def __init__(self):
         super(Cpuface, self).__init__()
-        loadUi('cpuface.ui', self)
+        data = path.dirname(__file__)
+        loadUi(path.realpath(data+'/cpuface.ui'), self)
 
         self.profiles = profiles.load_profiles()
         self.update_ui()
