@@ -3,11 +3,12 @@
     And add specific function
 """
 
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QMessageBox, QInputDialog
 from PyQt5.QtCore import QTimer
 from PyQt5.uic import loadUi
 import cpu_get
 import cpu_set
+import profiles
 
 
 class Cpuface(QDialog):
@@ -16,20 +17,91 @@ class Cpuface(QDialog):
         super(Cpuface, self).__init__()
         loadUi('cpuface.ui', self)
         self.cpuinfo = cpu_get.cpu_info()
+        self.profiles = profiles.load_profiles()
 
         cont = 0
         for cpu in self.cpuinfo:
             self.sel_cpu.addItem("CPU %d: %s" % (cont, cpu["name"]))
             cont += 1
 
+        self.update_profiles()
         self.update_cpu()
         self.sel_cpu.currentIndexChanged.connect(self.update_cpu)
+        self.btn_new.clicked.connect(self.new_profile)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_speed)
         self.timer.start(1000)
 
         self.show()
+
+    def new_profile(self):
+        self.btn_remove.setEnabled(False)
+        self.btn_save.setEnabled(False)
+        self.btn_new.setEnabled(False)
+        self.sel_profile.setEnabled(False)
+
+        input_name = QInputDialog(self)
+        input_name.setLabelText("Profile Name")
+        input_name.setOkButtonText("Create")
+        input_name.exec_()
+        name = input_name.textValue()
+
+        if name != '':
+            self.profiles[name] = list()
+            for cpu in range(0, len(self.cpuinfo)):
+                self.profiles[name].append(dict())
+                self.profiles[name][cpu]["online"] = cpu_get.online(cpu)
+                if cpu_get.online(cpu):
+                    self.profiles[name][cpu]["governor"] = cpu_get.governor(cpu)
+                else:
+                    self.profiles[name][cpu]["governor"] = None
+                if cpu_get.governor(cpu) == "userspace":
+                    self.profiles[name][cpu]["speed"] = cpu_get.speed(cpu)
+                else:
+                    self.profiles[name][cpu]["speed"] = None
+            self.update_profiles()
+            self.sel_profile.setCurrentIndex(self.sel_profile.findText(name))
+
+    def update_profile(self):
+        self.btn_remove.setEnabled(False)
+        self.btn_save.setEnabled(False)
+        self.btn_new.setEnabled(False)
+        self.sel_profile.setEnabled(False)
+
+        profile = self.sel_profile.currentText()
+        if profile != "No selected profile":
+            for cpu in range(0, len(self.cpuinfo)):
+                cpu_set.online(cpu, self.profiles[profile][cpu]["online"])
+                if self.profiles[profile][cpu]["governor"] is not None:
+                    cpu_set.governor(cpu, self.profiles[profile][cpu]["governor"])
+                if self.profiles[profile][cpu]["speed"] is not None:
+                    cpu_set.speed(cpu, self.profiles[profile][cpu]["speed"])
+            self.btn_remove.setEnabled(True)
+            self.btn_save.setEnabled(True)
+
+        self.sel_profile.setEnabled(True)
+        self.btn_new.setEnabled(True)
+        self.update_cpu()
+
+    def update_profiles(self, selected_profile=0):
+        self.btn_save.setEnabled(False)
+        self.btn_remove.setEnabled(False)
+        self.btn_new.setEnabled(False)
+        self.sel_profile.setEnabled(False)
+        try:
+            self.sel_profile.currentIndexChanged.disconnect()
+        except TypeError:
+            pass
+
+        self.sel_profile.clear()
+        self.sel_profile.addItem("No selected profile")
+        for item in self.profiles:
+            self.sel_profile.addItem(item)
+
+        self.sel_profile.setCurrentIndex(selected_profile)
+        self.update_profile()
+        self.sel_profile.currentIndexChanged.connect(self.update_profile)
 
     def update_speed(self):
         self.lab_speed.setText(str(cpu_get.speed(self.cpu)))
@@ -98,8 +170,12 @@ class Cpuface(QDialog):
 
     def set_online(self):
         self.set_unable(cpu_set.online(self.cpu, self.check_online.isChecked()))
+        self.cpuinfo = cpu_get.cpu_info()
         self.update_cpu()
 
     def set_speed(self):
         self.set_unable(cpu_set.speed(self.cpu, self.val_speed.value()))
         self.update_cpu()
+
+    def closeEvent(self, event):
+        profiles.save_profiles(self.profiles)
