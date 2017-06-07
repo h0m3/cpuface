@@ -61,7 +61,7 @@ class Cpuface(QDialog):
         if prof_index == -1:
             prof_index = 0
         self.sel_profile.clear()
-        self.sel_profile.addItem("No selected profile")
+        self.sel_profile.addItem("No profile")
         for profile in self.profiles:
             self.sel_profile.addItem(profile)
         self.sel_profile.setCurrentIndex(prof_index)
@@ -110,7 +110,7 @@ class Cpuface(QDialog):
         # Update buttons action
         self.btn_new.clicked.connect(self.new_profile)
         self.btn_new.setEnabled(True)
-        if self.sel_profile.currentText() != "No selected profile":
+        if self.sel_profile.currentText() != "No profile":
             self.btn_save.clicked.connect(self.save_profile)
             self.btn_save.setEnabled(True)
             self.btn_remove.clicked.connect(self.remove_profile)

@@ -1,0 +1,21 @@
+[Desktop Entry]
+Categories=System;HardwareSettings;Qt
+Comment[pt_BR]=Gerencie sua CPU
+Comment=Gerencie sua CPU
+Exec=/usr/bin/cpufreq
+GenericName[pt_BR]=Gerenciador de CPU
+GenericName=Gerenciador de CPU
+Icon=processor
+MimeType=
+Name[pt_BR]=CPUFace
+Name=CPUFace
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+Version=1.0
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=
