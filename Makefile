@@ -32,7 +32,7 @@ install:
 	install -m 0644 profiles.py $(PREFIX)/share/cpuface/profiles.py
 	install -m 0755 main.py $(PREFIX)/share/cpuface/main.py
 	install -m 0755 cpuface.desktop $(PREFIX)/share/applications/cpuface.desktop
-	ln -s $(PREFIX)/share/cpuface/main.py $(PREFIX)/bin/cpuface
+	ln -s /usr/share/cpuface/main.py $(PREFIX)/bin/cpuface
 
 uninstall:
 	rm -f $(PREFIX)/bin/cpuface
