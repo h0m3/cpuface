@@ -2,7 +2,7 @@
 Categories=System;HardwareSettings;Qt
 Comment[pt_BR]=Gerencie sua CPU
 Comment=Gerencie sua CPU
-Exec=/usr/bin/cpufreq
+Exec=/usr/bin/cpuface
 GenericName[pt_BR]=Gerenciador de CPU
 GenericName=Gerenciador de CPU
 Icon=processor
