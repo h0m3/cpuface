@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # CPUFace - A CPU governor control for unix systems
 # Copyright (C) 2017 Artur Paiva
 #

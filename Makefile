@@ -6,7 +6,7 @@ PREFIX=$(DESTDIR)/usr
 all: python helper
 
 python: cpu_get.py cpu_set.py cpuface.py main.py profiles.py
-	python -m compileall -l .
+	python3 -m compileall -l .
 
 helper: cpuface_helper.c
 	$(CC) -o cpuface_helper cpuface_helper.c $(CFLAGS)
