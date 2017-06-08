@@ -27,8 +27,8 @@ from sys import version, version_info, argv
 
 
 def show_help():
-    print("Usage: %s" % argv[0])
-    print("\nCPUFace is a manager for your CPU, you can set and monitor speed, status and governor.\n")
+    print("Usage: %s [Qt Arguments]" % argv[0])
+    print("\nCPUFace is a simple CPU Governor and Monitor for Unix Systems\n")
     print("Qt Arguments:")
     print(" --style=[style]\t\tSets the application GUI style. Possible values depend on your system configuration.")
     print(" --stylesheet=[sheet]\t\tSets the application styleSheet.")
@@ -41,7 +41,7 @@ def show_help():
 
 if __name__ == "__main__":
     if version_info[0] < 3:
-        print("[CPUFace] Python 3 is required to run CPUFace, your Python version is outdated (%s)" % version)
+        print("[CPUFace] Python 3 required to run CPUFace, your Python is outdated (%s)" % version)
         quit(3)
     if len(argv) > 1 and (argv[1] == "--help" or argv[1] == "-h"):
         show_help()

@@ -3,15 +3,13 @@
     to populate and update the GUI
 """
 
-# TODO: Support for FreeBSD
-
 from os import listdir
 
 
 def read_file(path):
     try:
         buf = open(path, "r")
-        r = buf.readlines()
+        r = buf.read()
         buf.close()
         return r
     except (OSError, IOError) as err:
@@ -24,7 +22,7 @@ def driver(cpu=0):
     if r is None:
         return "Unknown"
     else:
-        return r[0][:-1]
+        return r[:-1]
 
 
 def cpu_info():
@@ -51,22 +49,22 @@ def cpu_info():
     if r is not None:
         processor = None
         cpu = dict()
-        for line in r:
+        for line in r.splitlines():
             if "processor" in line:
                 if processor is not None:
                     cpuinfo[processor] = cpu
                 processor = int(line.split(":")[1])
                 cpu = cpuinfo[processor]
             elif "model name" in line:
-                cpu["name"] = line.split(":")[1][1:-1]
+                cpu["name"] = line.split(":")[1][1:]
             elif "physical id" in line:
-                cpu["id"] = line.split(":")[1][1:-1]
+                cpu["id"] = line.split(":")[1][1:]
             elif "core id" in line:
-                cpu["core"] = line.split(":")[1][1:-1]
+                cpu["core"] = line.split(":")[1][1:]
             elif "cache size" in line:
                 cpu["cache"] = int(line.split(":")[1].replace("KB", ""))
             elif "vendor_id" in line:
-                cpu["vendor"] = line.split(":")[1][1:-1]
+                cpu["vendor"] = line.split(":")[1][1:]
         cpuinfo[processor] = cpu
 
     return cpuinfo
@@ -76,7 +74,7 @@ def online(cpu=0):
     if cpu is 0:
         return True
     r = read_file("/sys/devices/system/cpu/cpu%d/online" % cpu)
-    return (r is None) or (r[0][:-1] == '1')
+    return (r is None) or (r[:-1] == '1')
 
 
 def governor(cpu=0):
@@ -85,7 +83,7 @@ def governor(cpu=0):
         if r is None:
             return "Unknown"
         else:
-            return r[0][:-1]
+            return r[:-1]
     else:
         return "Disabled"
 
@@ -96,7 +94,7 @@ def speed(cpu=0):
         if r is None:
             return 0
         else:
-            return int(int(r[0]) / 1000)
+            return int(int(r) / 1000)
     else:
         return 0
 
@@ -107,7 +105,7 @@ def min_speed(cpu=0):
         if r is None:
             return 0
         else:
-            return int(int(r[0]) / 1000)
+            return int(int(r) / 1000)
     else:
         return 0
 
@@ -118,7 +116,7 @@ def max_speed(cpu=0):
         if r is None:
             return 0
         else:
-            return int(int(r[0]) / 1000)
+            return int(int(r) / 1000)
     else:
         return 0
 
@@ -129,6 +127,6 @@ def governors(cpu=0):
         if r is None:
             return [governor(cpu)]
         else:
-            return r[0][:-1].split(" ")
+            return r[:-1].split(" ")
     else:
         return [governor(cpu)]

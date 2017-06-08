@@ -138,7 +138,7 @@ class Cpuface(QDialog):
 
     def set_speed(self):
         self.detect_error(cpu_set.speed(self.cpu, self.val_speed.value()))
-        self.update_cpu()
+        self.update_ui()
 
     def new_profile(self):
         input_name = QInputDialog(self)
