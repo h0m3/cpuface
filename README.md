@@ -43,10 +43,6 @@ If you have `yaourt` or any similar tool you can install CPUFace by one command.
 yaourt -S cpuface-git
 ```
 
-#### Ubuntu Users
-
-I will soon create a package for Ubuntu and derivate systems
-
 #### Other Users
 
 The installation process of CPUFace is really easy, it came with installation scripts. You can follow this steps:
