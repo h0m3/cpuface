@@ -24,12 +24,14 @@ int edit_file(int cpu, char *path, char *text) {
     FILE *buf = fopen(new_path, "w");
     if (buf == NULL) {
         printf("Unable to open '%s' for writing!\n", new_path);
+        free(new_path);
         return 4;
     }
 
     if (fprintf(buf, "%s", text) < 0) {
         printf("Unable to write data (%s) into '%s'\n", text ,new_path);
         fclose(buf);
+        free(new_path);
         return 5;
     }
 
